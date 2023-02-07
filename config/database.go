@@ -2,28 +2,44 @@ package config
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/teten-nugraha/books_api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"os"
 )
 
-var Database *gorm.DB
-
-func ConnectDB() {
-	var err error
-
-	host := os.Getenv("DB_HOST")
-	username := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
-	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
+func SetupDBConnection() *gorm.DB {
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("Successfully connected to the database")
+		log.Fatalln("Failed to load env")
 	}
+
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+
+	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("Failed to create a connection to database")
+	}
+
+	log.Println("Connected to database")
+
+	// migrate entities
+	db.AutoMigrate(models.User{}, models.Book{})
+	return db
+}
+
+func CloseDBConnection(db *gorm.DB) {
+	dbSQL, err := db.DB()
+	if err != nil {
+		panic("Failed to close connection from db")
+	}
+	dbSQL.Close()
 }
