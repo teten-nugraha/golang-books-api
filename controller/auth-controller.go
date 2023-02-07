@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/teten-nugraha/books_api/dto/request"
-	"github.com/teten-nugraha/books_api/models"
 	"github.com/teten-nugraha/books_api/service"
 	"net/http"
 )
@@ -23,13 +22,11 @@ func (a authController) Register(context *gin.Context) {
 		return
 	}
 
-	user := a.authService.FindByUsername(payload.Username)
-	if !(user == models.User{}) {
-		context.JSON(http.StatusConflict, gin.H{"error": "username already exist"})
+	savedUser, err := a.authService.CreateUser(payload)
+	if err != nil {
+		context.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
-
-	savedUser := a.authService.CreateUser(payload)
 
 	context.JSON(http.StatusCreated, gin.H{"user": savedUser})
 }
