@@ -2,17 +2,16 @@ package service
 
 import (
 	"errors"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/teten-nugraha/books_api/dto/request"
-	"github.com/teten-nugraha/books_api/models"
-	"github.com/teten-nugraha/books_api/repository"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
+
+	"books_api/dto/request"
+	"books_api/models"
+	"books_api/repository"
+
+	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService interface {
@@ -94,25 +93,4 @@ func NewAuthService(userRepository repository.UserRepository) AuthService {
 	return &authService{
 		userRepository: userRepository,
 	}
-}
-
-func getToken(context *gin.Context) (*jwt.Token, error) {
-	tokenString := getTokenFromRequest(context)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return privateKey, nil
-	})
-	return token, err
-}
-
-func getTokenFromRequest(context *gin.Context) string {
-	bearerToken := context.Request.Header.Get("Authorization")
-	splitToken := strings.Split(bearerToken, " ")
-	if len(splitToken) == 2 {
-		return splitToken[1]
-	}
-	return ""
-
 }

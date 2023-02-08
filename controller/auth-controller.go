@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/teten-nugraha/books_api/dto/request"
-	"github.com/teten-nugraha/books_api/service"
+	"books_api/dto/request"
+	"books_api/service"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthController interface {

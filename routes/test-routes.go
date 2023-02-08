@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"books_api/controller"
+	"books_api/middlewares"
+
 	"github.com/gin-gonic/gin"
-	"github.com/teten-nugraha/books_api/controller"
-	"github.com/teten-nugraha/books_api/middlewares"
 )
 
 func TestRoutes(route *gin.Engine) {

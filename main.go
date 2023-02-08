@@ -4,13 +4,14 @@ import (
 	"log"
 	"os"
 
+	"books_api/config"
+	"books_api/controller"
+	"books_api/repository"
+	"books_api/routes"
+	"books_api/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/teten-nugraha/books_api/config"
-	"github.com/teten-nugraha/books_api/controller"
-	"github.com/teten-nugraha/books_api/repository"
-	"github.com/teten-nugraha/books_api/routes"
-	"github.com/teten-nugraha/books_api/service"
 )
 
 var (

@@ -1,13 +1,14 @@
 package config
 
 import (
+	"books_api/models"
 	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/teten-nugraha/books_api/models"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func SetupDBConnection() *gorm.DB {

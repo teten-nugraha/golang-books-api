@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"github.com/teten-nugraha/books_api/models"
+	"books_api/models"
+	"log"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
 )
 
 type UserRepository interface {

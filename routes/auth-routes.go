@@ -1,8 +1,9 @@
 package routes
 
 import (
+	"books_api/controller"
+
 	"github.com/gin-gonic/gin"
-	"github.com/teten-nugraha/books_api/controller"
 )
 
 func AuthRoutes(route *gin.Engine, controller controller.AuthController) {
