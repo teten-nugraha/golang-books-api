@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/teten-nugraha/books_api/config"
@@ -8,19 +11,16 @@ import (
 	"github.com/teten-nugraha/books_api/repository"
 	"github.com/teten-nugraha/books_api/routes"
 	"github.com/teten-nugraha/books_api/service"
-	"gorm.io/gorm"
-	"log"
-	"os"
 )
 
 var (
-	db *gorm.DB = config.SetupDBConnection()
+	db = config.SetupDBConnection()
 
-	userRepository repository.UserRepository = repository.NewUserRepository(db)
+	userRepository = repository.NewUserRepository(db)
 
-	authService service.AuthService = service.NewAuthService(userRepository)
+	authService = service.NewAuthService(userRepository)
 
-	authController controller.AuthController = controller.NewAuthController(authService)
+	authController = controller.NewAuthController(authService)
 )
 
 func main() {
@@ -34,8 +34,12 @@ func loadRoutes() {
 	r := gin.Default()
 
 	routes.AuthRoutes(r, authController)
+	routes.TestRoutes(r)
 
-	r.Run(os.Getenv("API_PORT"))
+	err := r.Run(os.Getenv("API_PORT"))
+	if err != nil {
+		return
+	}
 }
 
 func loadEnv() {

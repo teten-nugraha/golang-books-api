@@ -17,7 +17,7 @@ import (
 
 type AuthService interface {
 	CreateUser(user request.AuthenticationInput) (models.User, error)
-	ValidateJWT(context *gin.Context) error
+	//ValidateJWT(context *gin.Context) error
 	Login(user request.AuthenticationInput) (string, error)
 }
 
@@ -43,7 +43,7 @@ func (service authService) Login(user request.AuthenticationInput) (string, erro
 		return "", err
 	}
 
-	return jwt, nil
+	return "Bearer " + jwt, nil
 }
 
 func generateJwt(user models.User) (string, error) {
@@ -56,18 +56,18 @@ func generateJwt(user models.User) (string, error) {
 	return token.SignedString(privateKey)
 }
 
-func (service authService) ValidateJWT(context *gin.Context) error {
-	token, err := getToken(context)
-	if err != nil {
-		return err
-	}
-
-	_, ok := token.Claims.(jwt.MapClaims)
-	if ok && token.Valid {
-		return nil
-	}
-	return errors.New("invalid token provided")
-}
+//func (service authService) ValidateJWT(context *gin.Context) error {
+//	token, err := getToken(context)
+//	if err != nil {
+//		return err
+//	}
+//
+//	_, ok := token.Claims.(jwt.MapClaims)
+//	if ok && token.Valid {
+//		return nil
+//	}
+//	return errors.New("invalid token provided")
+//}
 
 func validatePassword(existPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(existPassword), []byte(password))
