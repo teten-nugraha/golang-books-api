@@ -1,12 +1,11 @@
 package controller
 
 import (
+	"books_api/dto/request"
+	"books_api/models"
+	"books_api/service"
 	"net/http"
 	"strconv"
-
-	"books_api/models"
-
-	"books_api/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,44 +44,64 @@ func (b bookController) FindByID(context *gin.Context) {
 }
 
 func (b bookController) Insert(context *gin.Context) {
-	//var bookCreateDTO request.BookCreateDto
-	//errDTO := context.ShouldBind(&bookCreateDTO)
-	//if errDTO != nil {
-	//	context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to process request"})
-	//} else {
-	//	authHeader := context.GetHeader("Authorization")
-	//	userID := b.getUserIDByToken(authHeader)
-	//	convertedID, err := strconv.ParseUint(userID, 10, 64)
-	//	if err != nil {
-	//		bookCreateDTO.UserID = convertedID
-	//	}
-	//
-	//	result := b.bookService.Insert(bookCreateDTO)
-	//	response := helpers.BuildResponse(true, "OK", result)
-	//	context.JSON(http.StatusCreated, response)
-	//}
+	var bookCreateDTO request.BookCreateDto
+	errDTO := context.ShouldBind(&bookCreateDTO)
+	if errDTO != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to process request"})
+	} else {
+		authHeader := context.GetHeader("Authorization")
+		userID, err := b.authService.GetUserIDByToken(authHeader)
+		if err == nil {
+			bookCreateDTO.UserID = userID
+		}
+
+		result := b.bookService.Insert(bookCreateDTO)
+		context.JSON(http.StatusBadRequest, gin.H{"book": result})
+	}
 }
 
 func (b bookController) Update(context *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var bookUpdateDTO request.BookUpdateDto
+	errDTO := context.ShouldBind(&bookUpdateDTO)
+	if errDTO != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to process request"})
+		return
+	}
+
+	authHeader := context.GetHeader("Authorization")
+	userID, err := b.authService.GetUserIDByToken(authHeader)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to process request"})
+		return
+	}
+
+	if b.bookService.IsAllowedToEdit(userID, bookUpdateDTO.ID) {
+		bookUpdateDTO.UserID = userID
+		result := b.bookService.Update(bookUpdateDTO)
+		context.JSON(http.StatusOK, gin.H{"book": result})
+	} else {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You dont have permission, You are not the owner"})
+	}
 }
 
 func (b bookController) Delete(context *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
+	var book models.Book
+	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "failed to get id"})
+	}
+	book.ID = id
 
-//func (b bookController) getUserIDByToken(token string) string {
-//	aToken, err := b.authService.ValidateToken(token)
-//	if err != nil {
-//		panic(err.Error())
-//	}
-//
-//	claims := aToken.Claims.(jwt.MapClaims)
-//	id := fmt.Sprintf("%v", claims["user_id"])
-//	return id
-//}
+	authHeader := context.GetHeader("Authorization")
+	userID, err := b.authService.GetUserIDByToken(authHeader)
+
+	if b.bookService.IsAllowedToEdit(userID, book.ID) {
+		b.bookService.Delete(book)
+		context.JSON(http.StatusOK, gin.H{"message": "Deleted"})
+	} else {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You dont have permission, You are not the owner"})
+	}
+}
 
 func NewBookController(bookService service.BookService, authService service.AuthService) BookController {
 	return bookController{

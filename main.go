@@ -18,10 +18,15 @@ var (
 	db = config.SetupDBConnection()
 
 	userRepository = repository.NewUserRepository(db)
+	bookRepository = repository.NewBookRepository(db)
 
 	authService = service.NewAuthService(userRepository)
+	bookService = service.NewBookService(bookRepository)
+	userService = service.NewUserService(userRepository)
 
 	authController = controller.NewAuthController(authService)
+	bookController = controller.NewBookController(bookService, authService)
+	userController = controller.NewUserController(userService, authService)
 )
 
 func main() {
@@ -36,6 +41,8 @@ func loadRoutes() {
 
 	routes.AuthRoutes(r, authController)
 	routes.TestRoutes(r)
+	routes.BookRoutes(r, bookController)
+	routes.UserRoutes(r, userController)
 
 	err := r.Run(os.Getenv("API_PORT"))
 	if err != nil {

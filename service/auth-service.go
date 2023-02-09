@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -16,14 +17,38 @@ import (
 
 type AuthService interface {
 	CreateUser(user request.AuthenticationInput) (models.User, error)
-	//ValidateJWT(context *gin.Context) error
 	Login(user request.AuthenticationInput) (string, error)
+	GetUserIDByToken(token string) (uint64, error)
 }
 
 var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
 
 type authService struct {
 	userRepository repository.UserRepository
+}
+
+func (service authService) GetUserIDByToken(token string) (uint64, error) {
+	aToken, err := validateToken(token)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	claims := aToken.Claims.(jwt.MapClaims)
+	id := fmt.Sprintf("%v", claims["id"])
+	convertedID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return convertedID, nil
+}
+
+func validateToken(token string) (*jwt.Token, error) {
+	return jwt.Parse(token, func(t_ *jwt.Token) (interface{}, error) {
+		if _, ok := t_.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method %v", t_.Header["alg"])
+		}
+		return []byte(privateKey), nil
+	})
 }
 
 func (service authService) Login(user request.AuthenticationInput) (string, error) {
@@ -42,7 +67,7 @@ func (service authService) Login(user request.AuthenticationInput) (string, erro
 		return "", err
 	}
 
-	return "Bearer " + jwt, nil
+	return jwt, nil
 }
 
 func generateJwt(user models.User) (string, error) {
@@ -54,19 +79,6 @@ func generateJwt(user models.User) (string, error) {
 	})
 	return token.SignedString(privateKey)
 }
-
-//func (service authService) ValidateJWT(context *gin.Context) error {
-//	token, err := getToken(context)
-//	if err != nil {
-//		return err
-//	}
-//
-//	_, ok := token.Claims.(jwt.MapClaims)
-//	if ok && token.Valid {
-//		return nil
-//	}
-//	return errors.New("invalid token provided")
-//}
 
 func validatePassword(existPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(existPassword), []byte(password))

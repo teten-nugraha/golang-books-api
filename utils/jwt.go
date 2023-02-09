@@ -3,10 +3,11 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"os"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
@@ -41,6 +42,6 @@ func getTokenFromRequest(context *gin.Context) string {
 	if len(splitToken) == 2 {
 		return splitToken[1]
 	}
-	return ""
+	return splitToken[0]
 
 }

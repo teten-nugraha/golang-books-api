@@ -17,7 +17,7 @@ type BookService interface {
 	Delete(b models.Book)
 	All() []models.Book
 	FindByID(bookID uint64) models.Book
-	IsAllowedToEdit(userID string, bookID uint64) bool
+	IsAllowedToEdit(userID uint64, bookID uint64) bool
 }
 
 type bookService struct {
@@ -56,10 +56,10 @@ func (service bookService) FindByID(bookID uint64) models.Book {
 	return service.bookRepository.FindBookById(bookID)
 }
 
-func (service bookService) IsAllowedToEdit(userID string, bookID uint64) bool {
+func (service bookService) IsAllowedToEdit(userID uint64, bookID uint64) bool {
 	b := service.bookRepository.FindBookById(bookID)
 	id := fmt.Sprintf("%v", b.UserID)
-	return userID == id
+	return fmt.Sprint(userID) == id
 }
 
 func NewBookService(bookRepo repository.BookRepository) BookService {

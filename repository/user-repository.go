@@ -11,10 +11,17 @@ import (
 type UserRepository interface {
 	InsertUser(user models.User) models.User
 	FindByUsername(username string) models.User
+	ProfileUser(userId string) models.User
 }
 
 type userConnection struct {
 	connection *gorm.DB
+}
+
+func (db userConnection) ProfileUser(userId string) models.User {
+	var user models.User
+	db.connection.Find(&user, userId)
+	return user
 }
 
 func (db userConnection) InsertUser(user models.User) models.User {
