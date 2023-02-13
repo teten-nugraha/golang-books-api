@@ -56,7 +56,7 @@ func (b bookController) Insert(context *gin.Context) {
 		}
 
 		result := b.bookService.Insert(bookCreateDTO)
-		context.JSON(http.StatusBadRequest, gin.H{"book": result})
+		context.JSON(http.StatusCreated, gin.H{"book": result})
 	}
 }
 
