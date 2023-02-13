@@ -8,6 +8,7 @@ import (
 	"books_api/service"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,18 @@ func loadRoutes() {
 	routes.TestRoutes(r)
 	routes.BookRoutes(r, bookController)
 	routes.UserRoutes(r, userController)
+
+	//Add routes for check health and readiness
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "UP",
+		})
+	})
+	r.GET("/readiness", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "READY",
+		})
+	})
 
 	err := r.Run(os.Getenv("API_PORT"))
 	if err != nil {
