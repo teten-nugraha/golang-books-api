@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
-	"os"
-
 	"books_api/config"
 	"books_api/controller"
 	"books_api/repository"
 	"books_api/routes"
 	"books_api/service"
+	"fmt"
+	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -51,8 +51,18 @@ func loadRoutes() {
 }
 
 func loadEnv() {
-	err := godotenv.Load(".env")
+
+	args := os.Args[1:]
+	env := args[0]
+	var activeEnv string = ".env"
+	if "cloud" == env {
+		activeEnv = ".env-cloud"
+	}
+
+	err := godotenv.Load(activeEnv)
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	fmt.Println("Application Running using " + activeEnv)
 }
