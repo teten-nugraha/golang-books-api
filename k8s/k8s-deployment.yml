@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: books-api-deployment
+  namespace: books-api
+  labels:
+    app: books-api
+  annotations:
+    rollout: ""
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: books-api
+  template:
+    metadata:
+      labels:
+        app: books-api
+    spec:
+      containers:
+        - name: books-api
+          image: teten/books-api:cloud
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: books-api-configmap
+          volumeMounts:
+            - name: dotenv
+              mountPath: ./.env
+              subPath: .env
+              readOnly: true
+      volumes:
+        - name: dotenv
+          secret:
+            secretName: books-api-secret
+            items:
+              - key: .env
+                path: ./.env

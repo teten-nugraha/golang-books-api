@@ -65,17 +65,17 @@ func loadRoutes() {
 
 func loadEnv() {
 
-	args := os.Args[1:]
-	env := args[0]
-	var activeEnv string = ".env"
-	if "cloud" == env {
-		activeEnv = ".env-cloud"
-	}
+	//args := os.Args[1:]
+	//env := args[0]
+	//var activeEnv string = ".env"
+	//if "cloud" == env {
+	//	activeEnv = ".env-cloud"
+	//}
 
-	err := godotenv.Load(activeEnv)
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	fmt.Println("Application Running using " + activeEnv)
+	fmt.Println("Application Running using .env")
 }
